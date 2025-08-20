@@ -7,7 +7,7 @@ pipeline {
     environment {
         IMAGE_NAME = 'spring-app'
         CONTAINER_NAME = 'spring-app-container'
-        APP_PORT = '8080'
+        APP_PORT = '8083'
     }
 
     stages {
