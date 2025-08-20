@@ -8,6 +8,7 @@ pipeline {
         IMAGE_NAME = 'spring-app'
         CONTAINER_NAME = 'spring-app-container'
         APP_PORT = '8083'
+        EC2_IP = ''
     }
 
     stages {
@@ -37,9 +38,18 @@ pipeline {
                             sh "docker rm ${CONTAINER_NAME}"
                         }
 
-                        echo "🚀 Starting new Docker container..."
+                        echo "🚀 Starting new Docker container on port ${APP_PORT}..."
                         sh "docker run -d --name ${CONTAINER_NAME} -p ${APP_PORT}:8080 ${IMAGE_NAME}"
                     }
+                }
+            }
+        }
+
+        stage('Fetch EC2 IP') {
+            steps {
+                script {
+                    env.EC2_IP = sh(script: "curl -s http://checkip.amazonaws.com", returnStdout: true).trim()
+                    echo "🌍 EC2 Public IP: ${env.EC2_IP}"
                 }
             }
         }
@@ -54,7 +64,8 @@ pipeline {
 
     post {
         success {
-            echo "✅ Spring Boot container is handled successfully."
+            echo "✅ Spring Boot container is running successfully."
+            echo "👉 Access the app at: http://${env.EC2_IP}:${env.APP_PORT}"
         }
         failure {
             echo "❌ Something went wrong with the deployment."
